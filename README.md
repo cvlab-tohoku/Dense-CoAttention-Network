@@ -15,7 +15,7 @@ If you make use of this code, please cite the following paper:
 This repository contains Pytorch implementation of "[Improved Fusion of Visual and Language Representations by Dense Symmetric Co-Attention for Visual Question Answering](https://arxiv.org/abs/1804.00775)" paper. The network architecture is illustrated in Figure 1.
 
 ![Figure 1: Overview of Dense Co-Attention Network architecture.](imgs/dcn.png)
-<center>Figure 1: The MFB+CoAtt Network architecture for VQA.</center>
+<center>Figure 1: The Dense Co-Attention Network architecture.</center>
 
 ## Files
 ```
