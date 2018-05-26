@@ -1,6 +1,6 @@
 # Improved Fusion of Visual and Language Representations by Dense Symmetric Co-Attention for Visual Question Answering
 
-If you make use of this code, please cite the following paper:
+If you make use of this code, please cite the following paper (and give us a star):
 ```
 @article{DBLP:journals/corr/abs-1804-00775,
   author    = {Duy{-}Kien Nguyen and Takayuki Okatani},
