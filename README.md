@@ -35,6 +35,7 @@ Tests are performed with following version of libraries:
 + Numpy 1.13.3
 + Pytorch 0.3.1
 + Torchtext (for Pytorch 0.3)
++ Tensorflow (if you want to use tensorboard visualization)
 
 ## Training from Scratch
 The dataset can be downloaded from: [http://visualqa.org/](http://visualqa.org/).
