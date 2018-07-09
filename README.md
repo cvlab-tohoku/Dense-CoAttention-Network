@@ -34,7 +34,7 @@ Tests are performed with following version of libraries:
 + Python 3.6.3
 + Numpy 1.13.3
 + Pytorch 0.3.1
-+ Torchtext (for Pytorch 0.3)
++ Torchtext 0.2.1
 + Tensorflow (if you want to use tensorboard visualization)
 
 ## Training from Scratch
