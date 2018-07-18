@@ -2,13 +2,12 @@
 
 If you make use of this code, please cite the following paper (and give us a star ^_^):
 ```
-@article{DBLP:journals/corr/abs-1804-00775,
-  author    = {Duy{-}Kien Nguyen and Takayuki Okatani},
-  title     = {Improved Fusion of Visual and Language Representations by Dense Symmetric Co-Attention for Visual Question Answering},
-  journal   = {CoRR},
-  volume    = {abs/1804.00775},
-  year      = {2018},
-  url       = {http://arxiv.org/abs/1804.00775}
+@InProceedings{Nguyen_2018_CVPR,
+author = {Nguyen, Duy-Kien and Okatani, Takayuki},
+title = {Improved Fusion of Visual and Language Representations by Dense Symmetric Co-Attention for Visual Question Answering},
+booktitle = {The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+month = {June},
+year = {2018}
 }
 ```
 ## Overview
