@@ -21,6 +21,7 @@ This repository contains Pytorch implementation of "[Improved Fusion of Visual a
 ├──vqa_eval/ - Evaluation code provided from VQA team
 ├──preprocess/ - Preprocessing code before training the network
 ├──dense_coattn/ - Dense Co-Attention code
+├──demo/ - Demo code for pretrained Dense Co-Attention model
 train.py - Train the model
 answer.py - Generate the answer for test dataset
 ensemble.py - Ensemble multiple results from different models
@@ -35,6 +36,10 @@ Tests are performed with following version of libraries:
 + Pytorch 0.3.1
 + Torchtext 0.2.1
 + TensorboardX
+
+## Demo
+1. Download our pretrained model and data info: [download link](https://drive.google.com/drive/folders/1Qvxu2ZMfPBkVL3gqdBV0oupY22F3sKLU).
+2. Run ```demo/single_machine_demo.py``` to test our pretrained mode (if you want to run on cpu, specify --gpus is an empty list).
 
 ## Training from Scratch
 The dataset can be downloaded from: [http://visualqa.org/](http://visualqa.org/).
