@@ -70,7 +70,6 @@ class DCNWithAns(nn.Module):
 
 	def forward(self, img, ques, img_mask, ques_mask, is_train=True):
 		batch = ques.size(0)
-		num_ans = self.ans.size(0)
 		ans = Variable(self.ans.data)
 		ans_mask = Variable(self.ans_mask.data)
 		feat1, feat2, feat3, feat4 = self.resnet(img)
@@ -107,7 +106,6 @@ class DCNWithRCNN(nn.Module):
 		self.apply(Initializer.xavier_normal)
 
 	def forward(self, img, ques, img_mask, ques_mask):
-		batch = ques.size(0)
 		ques, _, ques_mask = self.lang_extract(ques, ques_mask)
 		img = F.normalize(self.img_extract(img), dim=2)
 
@@ -136,8 +134,6 @@ class DCNWithRCNNAns(nn.Module):
 		self.apply(Initializer.xavier_normal)
 
 	def forward(self, img, ques, img_mask, ques_mask):
-		batch = ques.size(0)
-		num_ans = self.ans.size(0)
 		ans = Variable(self.ans.data)
 		ans_mask = Variable(self.ans_mask.data)
 		ques, _, ques_mask = self.lang_extract(ques, ques_mask)

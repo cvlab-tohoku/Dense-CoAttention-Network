@@ -7,13 +7,12 @@ import torch
 import torch.nn as nn
 
 from .dense_coattn import DenseCoAttn
-from .self_attn import SelfAttn
 
 
-class NormalSublayer(nn.Module):
+class NormalDenseSublayer(nn.Module):
 
 	def __init__(self, dim, num_attn, num_none, dropout, dropattn=0.1):
-		super(NormalSublayer, self).__init__()
+		super(NormalDenseSublayer, self).__init__()
 		self.dense_coattn = DenseCoAttn(dim, num_attn, num_none, dropattn)
 		self.linears = nn.ModuleList([nn.Sequential(
 				nn.Linear(2 * dim, dim),
@@ -33,7 +32,7 @@ class SimpleDCNLayer(nn.Module):
 
 	def __init__(self, dim, num_attn, num_none, num_seq, dropout, dropattn=0.1):
 		super(SimpleDCNLayer, self).__init__()
-		self.dense_coattn_layers = nn.ModuleList([NormalSublayer(dim, num_attn, num_none, dropout, dropattn=dropattn)
+		self.dense_coattn_layers = nn.ModuleList([NormalDenseSublayer(dim, num_attn, num_none, dropout, dropattn=dropattn)
 			for _ in range(num_seq)])
 
 	def forward(self, data1, data2, mask1, mask2):
