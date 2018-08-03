@@ -38,7 +38,7 @@ Tests are performed with following version of libraries:
 + TensorboardX
 
 ## Demo
-1. Download our pretrained model and data info: [download link](https://drive.google.com/drive/folders/1Qvxu2ZMfPBkVL3gqdBV0oupY22F3sKLU).
+1. Download our pretrained model and data info: [download link](https://drive.google.com/drive/folders/1Qvxu2ZMfPBkVL3gqdBV0oupY22F3sKLU) and put it inside demo folder.
 2. Run ```demo/single_machine_demo.py``` to test our pretrained mode (if you want to run on cpu, specify --gpus is an empty list).
 
 ## Training from Scratch
