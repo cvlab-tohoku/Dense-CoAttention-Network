@@ -28,7 +28,7 @@ class LargeEmbedding(nn.Module):
 			devices (list): the GPU devices that stores word vectors.
 		"""
 		super(LargeEmbedding, self).__init__()
-		self.use_cuda = True if devices is not None else False
+		self.use_cuda = True if len(devices) > 0 else False
 		self.devices = devices
 		self.embedding_dim = embedding_dim
 		self.num_embeddings = num_embeddings
