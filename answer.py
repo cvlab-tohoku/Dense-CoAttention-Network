@@ -55,7 +55,7 @@ def answer(dataloader, model, idx2ans, opt, ensemble=False):
 		ques = model.word_embedded(ques)
 
 		score = model(img, ques, img_mask, ques_mask) if opt.use_rcnn else \
-			model(img, ques, img_mask, ques_mask, is_train=True)
+			model(img, ques, img_mask, ques_mask, is_train=False)
 		_, inds = torch.sort(score, dim=1, descending=True)
 
 		for j in range(ques_idx.size(0)):
