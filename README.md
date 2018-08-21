@@ -10,6 +10,9 @@ month = {June},
 year = {2018}
 }
 ```
+
+If you have any suggestion to improve this code, please feel free to contact me at ```kien@vision.tohoku.ac.jp```.
+
 ## Overview
 This repository contains Pytorch implementation of "[Improved Fusion of Visual and Language Representations by Dense Symmetric Co-Attention for Visual Question Answering](https://arxiv.org/abs/1804.00775)" paper. The network architecture is illustrated in Figure 1.
 
