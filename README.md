@@ -57,4 +57,4 @@ We provide the scripts for training our network from scratch by simply running t
 Run ```answer.py``` file to generate all of answers for the test set. You can use ```ensemble.py``` to ensemble multiple model's results for the evaluation
 
 ## License
-The source code is licensed under [MIT](./LICENSE).
+The source code is licensed under [MIT License](./LICENSE).
