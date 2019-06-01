@@ -10,7 +10,7 @@ import torch.nn as nn
 from dense_coattn.config import get_train_config
 from dense_coattn.data import DataLoader, VQADataset
 from dense_coattn.evaluate import VQA, VQAEval, evaluate
-from dense_coattn.model import DCN, DCNWithRCNN, DFCN, FCN
+from dense_coattn.model import DCN, DCNWithRCNN
 from dense_coattn.modules import LargeEmbedding
 from dense_coattn.optim import FixedAdam
 from dense_coattn.optim.lr_scheduler import StepScheduler
@@ -275,12 +275,10 @@ def main(opt):
 	idx2ans = trainset.idx2ans
 	num_ans = trainset.ans_pool.shape[0]
 
-	if opt.arch == "DCN":
+	if opt.arch == "DCNWithRCNN":
 		model = DCNWithRCNN(opt, num_ans)
-	elif opt.arch == "DFCN":
-		model = DFCN(opt, num_ans)
-	elif opt.arch == "FCN":
-		model = FCN(opt, num_ans)
+	elif opt.arch == "DCN":
+		model = DCN(opt, num_ans)
 
 	criterion = nn.BCEWithLogitsLoss(reduction="sum")
 
