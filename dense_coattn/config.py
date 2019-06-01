@@ -6,12 +6,11 @@ def get_train_config():
 	parser = argparse.ArgumentParser()
 
 	arch = parser.add_argument_group("Model Architecture")
-	arch.add_argument("--arch", default="DCN")
+	arch.add_argument("--arch", default="DCNWithRCNN")
 	arch.add_argument("--num-layers", type=int, default=2)
 	arch.add_argument("--cnn-name", type=str, default="resnet152")
 	arch.add_argument("--img-size", type=int, default=2048)
 	arch.add_argument("--ques-size", type=int, default=1024)
-	arch.add_argument("--model-type", type=int, default="DCNWithRCNN")
 	arch.add_argument("--num-img-attn", type=int, default=4)
 	arch.add_argument("--num-dense-attn", type=int, default=4)
 	arch.add_argument("--num-predict-attn", type=int, default=4)
