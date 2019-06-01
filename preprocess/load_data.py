@@ -1,19 +1,16 @@
 
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
+import argparse
 import json
-import h5py
-import numpy as np
+import os
 import re
 import sys
-import os
-import torch
-import argparse
-
 from collections import Counter
 
+import h5py
+import numpy as np
+import torch
 
 # Constants in the vocabulary
 UNK_WORD = "<unk>"
@@ -208,7 +205,7 @@ def build_glove_train(examples, gloves):
 			counts.update(ques)
 		for answers in ex["processed_ans"]:
 			for ans in answers:
-				counts.update(ans)
+				counts.update(ans[0])
 
 	sorted_counts = sorted([(count, word) for word, count in counts.items()], reverse=True)
 	print("Most frequent words in the dataset:")

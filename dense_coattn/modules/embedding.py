@@ -1,12 +1,6 @@
 
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import division
-
 import torch
 import torch.nn as nn
-
-from torch.autograd import Variable
 
 
 class LargeEmbedding(nn.Module):
@@ -28,8 +22,8 @@ class LargeEmbedding(nn.Module):
 			devices (list): the GPU devices that stores word vectors.
 		"""
 		super(LargeEmbedding, self).__init__()
-		self.use_cuda = True if len(devices) > 0 else False
-		self.devices = devices
+		self.use_cuda = False if not devices else True
+		self.devices = [torch.device("cuda", device) for device in devices] if self.use_cuda else None
 		self.embedding_dim = embedding_dim
 		self.num_embeddings = num_embeddings
 
@@ -43,7 +37,7 @@ class LargeEmbedding(nn.Module):
 
 		if self.use_cuda:
 			for i, embedding in enumerate(self.embeddings):
-				embedding.cuda(self.devices[i])
+				embedding.to(self.devices[i])
 
 	def load_pretrained_vectors(self, word_vectors, is_freeze=True):
 		"""
@@ -58,8 +52,9 @@ class LargeEmbedding(nn.Module):
 
 		for i, embedding in enumerate(self.embeddings):
 			embedding.weight.data.copy_(pretrained[i*self.page_size: min((i+1)*self.page_size, self.num_embeddings)], 
-				async=True)
-			embedding.weight.requires_grad = False if is_freeze else True
+				non_blocking=True)
+			if is_freeze:
+				embedding.weight.requires_grad_(requires_grad=False)
 
 	def forward(self, indices_):
 		"""
@@ -69,13 +64,10 @@ class LargeEmbedding(nn.Module):
 			embedded (FloatTensor: any shape x embedding_dim): each index is replaced by a word vector.
 		"""
 		if self.use_cuda:
-			indices = indices_.view(-1).cuda(self.devices[0])
+			indices = indices_.view(-1).to(self.devices[0])
 
-			embedded = torch.FloatTensor(indices.size(0), self.embedding_dim).cuda(self.devices[0])
-			idxs = torch.arange(0, indices.size(0)).long().cuda(self.devices[0])
-
-			embedded = Variable(embedded)
-			idxs = Variable(idxs)
+			embedded = torch.empty(indices.size(0), self.embedding_dim).to(self.devices[0])
+			idxs = torch.arange(indices.size(0)).to(self.devices[0], dtype=torch.long)
 
 			for i in range(self.num_pages):
 				mask_i = torch.min(torch.ge(indices, i * self.page_size), torch.lt(indices, (i+1) * self.page_size))
@@ -84,18 +76,19 @@ class LargeEmbedding(nn.Module):
 					continue
 
 				indices_i = torch.index_select(indices, 0, mask_idx) - i * self.page_size
-				indices_i = indices_i.cuda(self.devices[i])
+				indices_i = indices_i.to(self.devices[i])
 
 				try:
-					value_i = self.embeddings[i](indices_i).cuda(self.devices[0])
+					value_i = self.embeddings[i](indices_i).to(self.devices[0])
 				except Exception:
 					print("LargeEmbedding - %s, %s" % (indices_i, i * self.page_size))
 					print("LargeEmbedding - %s" % self.devices[i])
 					print("LargeEmbedding - %s" % self.embeddings[i])
 					print("LargeEmbedding - %s" % indices_i.get_device()) if self.use_cuda else None
-				embedded.index_copy_(0, mask_idx, value_i)
-
-			embedded = embedded.view(indices_.size(0), indices_.size(1), self.embedding_dim)
+				# embedded.index_copy_(0, mask_idx, value_i)
+				embedded[mask_idx, :] = value_i
+			dim = list(indices_.size()) + [self.embedding_dim]
+			embedded = embedded.view(*dim)
 		else:
 			embedded = self.embeddings[0](indices_)
 

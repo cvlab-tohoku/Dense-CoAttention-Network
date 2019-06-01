@@ -1,17 +1,14 @@
 
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import division
-
-import torch
 import argparse
 import glob
+import json
 import os
 import random
-import json
 
+import torch
 from torch.nn import functional as F
-from dense_coattn.data import Dataset, RCNN_Dataset, DataLoader
+
+from dense_coattn.data import DataLoader, VQADataset
 
 
 def main(opt):
@@ -20,13 +17,10 @@ def main(opt):
 	"""
 	random.seed(opt.seed)
 	print("Constructing the dataset...")
-	testset = testset = Dataset(opt.data_path, opt.data_name, "test", opt.seq_per_img, opt.img_name,
-		opt.size_scale, use_h5py=opt.use_h5py) if not opt.use_rcnn else \
-			RCNN_Dataset(opt.data_path, opt.data_name, "test", opt.seq_per_img)
-	testLoader = DataLoader(testset, batch_size=opt.batch, shuffle=False, 
-		num_workers=opt.num_workers, pin_memory=True, drop_last=False, use_thread=opt.use_thread)
+	testset = VQADataset(opt.data_path, opt.data_name, "test", opt.img_path, opt.img_type, "test")
+	testLoader = DataLoader(testset, batch_size=opt.batch_size, shuffle=False, drop_last=False,
+		num_workers=opt.num_workers, pin_memory=True)
 
-	idx2word = testset.idx2word
 	idx2ans = testset.idx2ans
 	num_batches = len(testLoader)
 
@@ -53,10 +47,10 @@ def main(opt):
 	with open("%s.json" % (os.path.join(opt.result_path, opt.save_file)), "w") as file:
 		json.dump(answers, file)
 
-	print(chosen_file)
-	torch.save(chosen_file, "%s.pt" % (os.path.join(opt.result_path, opt.save_file)))
-
+	with open("{}.txt".format(chosen_file), "w") as file:
+		json.dump(chosen_file, file)
 	print("Done!")
+
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()

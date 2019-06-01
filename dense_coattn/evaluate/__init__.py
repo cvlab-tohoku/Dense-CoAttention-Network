@@ -1,4 +1,8 @@
 
-from .accuracy import Accuracy
+from .accuracy import evaluate
+from .vqa import VQA
+from .vqa_eval import VQAEval
 
-__all__ = ["Accuracy"]
+__all__ = ["evaluate",
+		   "VQAEval",
+		   "VQA",]

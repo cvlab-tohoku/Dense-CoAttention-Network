@@ -1,6 +1,8 @@
 
-from .optims import OptimWrapper
+from .adam import FixedAdam
+from .optimizer import WrapOptimizer
 from .sgd import SGD
-from .adam import Adam
 
-__all__ = ["OptimWrapper", "SGD", "Adam"]
+__all__ = ["WrapOptimizer", 
+           "SGD", 
+           "FixedAdam"]

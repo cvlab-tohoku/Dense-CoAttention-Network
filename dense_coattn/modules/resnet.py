@@ -1,27 +1,22 @@
 
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import division
-
 import torch.nn as nn
-
 from torchvision import models
 
 
 class ResNet(nn.Module):
 
 	def __init__(self, name, is_freeze=True):
-		assert name in ["resnet50", "resnet101", "resnet152"], "Invalid CNN type!"
+		assert name in ["resnet50", "resnet101", "resnet152"], "Invalid CNN type: {:s}".format(name)
 		super(ResNet, self).__init__()
 
 		self.model = models.__dict__[name](pretrained=True)
 		delattr(self.model, "fc")
 		delattr(self.model, "avgpool")
-
+		
 		if is_freeze:
 			print("Freezing %s ..." % name)
 			for param in self.model.parameters():
-				param.requires_grad = False
+				param.requires_grad_(requires_grad=False)
 
 	def forward(self, image):
 		image = self.model.conv1(image)

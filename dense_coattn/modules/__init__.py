@@ -1,9 +1,13 @@
 
-from .dense_coattn_layer import SimpleDCNLayer
+from .dense_coattn_layer import DCNLayer
 from .embedding import LargeEmbedding
-from .image_extraction_layer import ImageExtractionLayer
-from .language_extraction_layer import MTLSTM, LSTM
-from .prediction_layer import PredictionLayer, InnerPredictionLayer
-from .resnet import ResNet
+from .image_extraction_layer import BottomUpExtract, ImageExtractionLayer
+from .language_extraction_layer import GRU, LSTM
+from .prediction_layer import PredictLayer
 
-__all__ = ["SimpleDCNLayer", "LargeEmbedding", "ImageExtractionLayer", "MTLSTM", "LSTM", "PredictionLayer", "InnerPredictionLayer", "ResNet"]
+__all__ = ["DCNLayer",
+		   "LargeEmbedding",
+		   "ImageExtractionLayer", "BottomUpExtract",
+		   "LSTM", "GRU",
+		   "PredictLayer",
+		   ]

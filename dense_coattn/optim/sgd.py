@@ -1,36 +1,50 @@
 
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import division
-
 import torch
-
+import torch.optim
 from torch.optim import Optimizer
 
+from .optimizer import WrapOptimizer
 
-class SGD(Optimizer):
 
-	def __init__(self, params, lr=0.1, momentum=0, dampening=0, weight_decay=0, nesterov=False, record_step=10):
+class SGD(WrapOptimizer):
+
+	def __init__(self, args, params):
+		super(SGD, self).__init__(args, params)
+		self._optimizer = FixedSGD(params, **self.optimizer_config)
+
+	@property
+	def optimizer_config(self):
+		return {
+			"lr": self.args.lr[0],
+			"momentum": self.args.momentum,
+			"weight_decay": self.args.weight_decay,
+		}
+
+
+class FixedSGD(Optimizer):
+
+	def __init__(self, params, lr=0.1, momentum=0, dampening=0, weight_decay=0, nesterov=False, record=True):
 		defaults = dict(lr=lr, momentum=momentum, dampening=dampening, weight_decay=weight_decay, nesterov=nesterov,
-			record_step=record_step)
+			record=record)
 		if nesterov and (momentum <= 0 or dampening != 0):
 			raise ValueError("Nesterov momentum reuquires a momentum and zero dampening")
-		super(SGD, self).__init__(params, defaults)
+		super(FixedSGD, self).__init__(params, defaults)
+		self.group_stats = []
 
 	def __setstate__(self, state):
-		super(SGD, self).__setstate__(state)
+		super(FixedSGD, self).__setstate__(state)
 		for group in self.param_groups:
 			group.setdefault("nesterov", False)
 
 	def step(self, closure=None):
 		loss = None
-		sum_abs_update = 0.
-		sum_abs_params = 0.
-		ratio = None
+		self.group_stats = []
 		if closure is not None:
 			loss = closure()
 
 		for group in self.param_groups:
+			group_abs_updates = 0.
+			group_abs_params = 0.
 			weight_decay = group["weight_decay"]
 			momentum = group["momentum"]
 			dampening = group["dampening"]
@@ -61,12 +75,12 @@ class SGD(Optimizer):
 					else:
 						d_p = buf
 
-				if state["step"] % group["record_step"] == 0:
+				if group["record"]:
 					updates = (-group["lr"]) * d_p
-					sum_abs_update += torch.sum(torch.abs(updates))
-					sum_abs_params += torch.sum(torch.abs(p.data))
-					ratio = sum_abs_update / (sum_abs_params + 1e-9)
+					group_abs_updates += torch.sum(torch.abs(updates))
+					group_abs_params += torch.sum(torch.abs(p.data))
 
 				p.data.add_(-group["lr"], d_p)
+			self.group_stats.append((group_abs_updates, group_abs_params))
 
-		return loss, ratio, sum_abs_update, sum_abs_params
+		return loss

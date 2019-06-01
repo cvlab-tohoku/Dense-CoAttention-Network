@@ -1,21 +1,20 @@
 
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import division
+import os
+import random
+import shutil
+import time
+from collections import Sequence
 
 import matplotlib
 matplotlib.use('Agg')
-import time
-import torch
-import random
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import numpy as np
 import scipy.misc as misc
 import skimage.transform as transform
-import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
+import torch
 import torch.nn as nn
-
-from PIL import ImageDraw, ImageFont, Image
+from PIL import Image, ImageDraw, ImageFont
 
 
 class Initializer(object):
@@ -42,7 +41,7 @@ class Initializer(object):
 		normal_classes = (nn.Conv2d, nn.Linear, nn.Embedding)
 		recurrent_classes = (nn.RNN, nn.LSTM, nn.GRU)
 		if any([isinstance(module, cl) for cl in normal_classes]):
-			nn.init.xavier_normal(module.weight.data) if module.weight.requires_grad else None
+			nn.init.xavier_normal_(module.weight.data) if module.weight.requires_grad else None
 			try:
 				module.bias.data.fill_(0) if module.bias.requires_grad else None
 			except AttributeError:
@@ -50,7 +49,7 @@ class Initializer(object):
 		elif any([isinstance(module, cl) for cl in recurrent_classes]):
 			for name, param in module.named_parameters():
 				if name.startswith("weight"):
-					nn.init.xavier_normal(param.data) if param.requires_grad else None
+					nn.init.xavier_normal_(param.data) if param.requires_grad else None
 				elif name.startswith("bias"):
 					if param.requires_grad:
 						hidden_size = param.size(0)
@@ -66,7 +65,7 @@ class Initializer(object):
 		normal_classes = (nn.Conv2d, nn.Linear, nn.Embedding)
 		recurrent_classes = (nn.RNN, nn.LSTM, nn.GRU)
 		if any([isinstance(module, cl) for cl in normal_classes]):
-			nn.init.xavier_uniform(module.weight.data) if module.weight.requires_grad else None
+			nn.init.xavier_uniform_(module.weight.data) if module.weight.requires_grad else None
 			try:
 				module.bias.data.fill_(0) if module.bias.requires_grad else None
 			except AttributeError:
@@ -74,7 +73,7 @@ class Initializer(object):
 		elif any([isinstance(module, cl) for cl in recurrent_classes]):
 			for name, param in module.named_parameters():
 				if name.startswith("weight"):
-					nn.init.xavier_uniform(param.data) if param.requires_grad else None
+					nn.init.xavier_uniform_(param.data) if param.requires_grad else None
 				elif name.startswith("bias"):
 					if param.requires_grad:
 						hidden_size = param.size(0)
@@ -90,7 +89,7 @@ class Initializer(object):
 		normal_classes = (nn.Conv2d, nn.Linear, nn.Embedding)
 		recurrent_classes = (nn.RNN, nn.LSTM, nn.GRU)
 		if any([isinstance(module, cl) for cl in normal_classes]):
-			nn.init.orthogonal(module.weight.data) if module.weight.requires_grad else None
+			nn.init.orthogonal_(module.weight.data) if module.weight.requires_grad else None
 			try:
 				module.bias.data.fill_(0) if module.bias.requires_grad else None
 			except AttributeError:
@@ -98,7 +97,7 @@ class Initializer(object):
 		elif any([isinstance(module, cl) for cl in recurrent_classes]):
 			for name, param in module.named_parameters():
 				if name.startswith("weight"):
-					nn.init.orthogonal(param.data) if param.requires_grad else None
+					nn.init.orthogonal_(param.data) if param.requires_grad else None
 				elif name.startswith("bias"):
 					if param.requires_grad:
 						hidden_size = param.size(0)
@@ -184,99 +183,101 @@ class Drawer(object):
 		return misc.toimage(img).convert("RGBA")
 
 
-class Saver(object):
+class TimeMeter(object):
+	"""Computes the average occurrence of some event per second"""
+	def __init__(self, init=0):
+		self.reset(init)
 
-	@staticmethod
-	def save_model(model_state_dict, opt, epoch, best_accuracy, history, save_type=0):
-		"""
-		Save our network.
-		--------------------
-		Arguments:
-			model_state_dict (dict): contains modules and its parameters.
-			opt (args object): option for the training procedure.
-			epoch (int): checkpoint of epoch.
-			best_accuracy (float): the best accuracy at the saving time.
-			history (list): previous accuracies.
-			save_type (int): "back up", "save best", or "save epoch".
-		"""
-		checkpoint = {
-			"model": model_state_dict,
-			"opt": opt,
-			"epoch": epoch,
-			"best_accuracy": best_accuracy,
-			"history": history,
-		}
-		if save_type == 0:
-			print("Backing up model...")
-			model_name = "%s.pt" % opt.save_model
-		elif save_type == 1:
-			print("Saving the best model...")
-			model_name = "%s_best.pt" % opt.save_model
-		elif save_type == 2:
-			print("Saving model at epoch %i..." % epoch)
-			model_name = "%s_%s.pt" % (opt.save_model, epoch)
-		else:
-			raise TypeError("Invalid save type!")
-		torch.save(checkpoint, model_name)
+	def reset(self, init=0):
+		self.init = init
+		self.start = time.time()
+		self.n = 0
 
-	@staticmethod
-	def save_state_dict(model, excludes=None, is_parallel=False):
-		"""
-		Return the state dict of our network.
-		--------------------
-		Arguments:
-			model (nn.Module): the trained network.
-			excludes (list): modules which are not saved.
-			is_parallel (bool): If True, the model is on multiple GPUs.
-		Return:
-			model_state_dict (dict): dictionary which stores modules' name and weights.
-		"""
-		excludes = [] if excludes is None else excludes
-		state_dict = model.module.state_dict() if is_parallel else model.state_dict()
-		model_state_dict = {}
-		for k, v in state_dict.items():
-			if not any([exclude in k for exclude in excludes]):
-				model_state_dict[k] = v
+	def update(self, val=1):
+		self.n += val
 
-		return model_state_dict
+	@property
+	def avg(self):
+		return self.n / self.elapsed_time
+	
+	@property
+	def elapsed_time(self):
+		return self.init + (time.time() - self.start)
 
 
-class Timer(object):
-
-	def __init__(self):
-		self.total_time = 0.
-		self.calls = 0
-		self.start_time = 0.
-		self.diff = 0.
-		self.average_time = 0.
-
-	def tic(self):
-		self.start_time = time.time()
-
-	def toc(self, average=True):
-		self.diff = time.time() - self.start_time
-		self.total_time += self.diff
-		self.calls += 1
-		self.average_time = self.total_time / self.calls
-
-		if average:
-			return self.average_time
-		return self.diff
-
-
-class Meter(object):
-
+class AverageMeter(object):
+	"""Computes and stores the average and current value"""
 	def __init__(self):
 		self.reset()
 
 	def reset(self):
-		self.value = 0.
-		self.avg = 0.
-		self.sum = 0.
+		self.val = 0
+		self.avg = 0
+		self.sum = 0
 		self.count = 0
 
-	def update(self, value, n=1):
-		self.value = value
-		self.sum += value * n
+	def update(self, val, n=1):
+		self.val = val
+		self.sum += val * n
 		self.count += n
 		self.avg = self.sum / self.count
+
+
+class StopwatchMeter(object):
+	"""Computes the sum/avg duration of some event in seconds"""
+	def __init__(self):
+		self.reset()
+
+	def start(self):
+		self.start_time = time.time()
+
+	def stop(self, n=1):
+		if self.start_time is not None:
+			delta = time.time() - self.start_time
+			self.sum += delta
+			self.n += n
+			self.start_time = None
+
+	def reset(self):
+		self.sum = 0
+		self.n = 0
+		self.start_time = None
+
+	@property
+	def avg(self):
+		return self.sum / self.n
+
+
+def move_to_cuda(tensors, devices=None):
+	if devices is not None:
+		if len(devices) >= 1:
+			cuda_tensors = []
+			for tensor in tensors:
+				if not isinstance(tensor, Sequence):
+					cuda_tensors.append(tensor.cuda(devices[0], non_blocking=True))
+				else:
+					cuda_tensors.append(move_to_cuda(tensor, devices=devices))
+			return tuple(cuda_tensors)
+	return tensors
+
+
+def save_checkpoint(model, state, is_best, is_save, directory):
+	filename = os.path.join(directory, "{}.pth.tar".format(model))
+	torch.save(state, filename)
+	if is_best:
+		filename_best = os.path.join(directory, "{}_best.pth.tar".format(model))
+		shutil.copyfile(filename, filename_best)
+	if is_save:
+		filename_save = os.path.join(directory, "{}_epoch{}.pth.tar".format(model, state["last_epoch"]))
+		shutil.copyfile(filename, filename_save)
+
+
+def extract_statedict(model, excludes=None, is_parallel=False):
+	excludes = [] if excludes is None else excludes
+	state_dict = model.module.state_dict() if is_parallel else model.state_dict()
+	model_state_dict = {}
+	for k, v in state_dict.items():
+		if not any([exclude in k for exclude in excludes]):
+			model_state_dict[k] = v
+	
+	return model_state_dict
