@@ -21,28 +21,21 @@ This repository contains Pytorch implementation of "[Improved Fusion of Visual a
 
 ## Files
 ```
-├──vqa_eval/ - Evaluation code provided from VQA team
 ├──preprocess/ - Preprocessing code before training the network
 ├──dense_coattn/ - Dense Co-Attention code
-├──demo/ - Demo code for pretrained Dense Co-Attention model
+├──demo/ - Demo imgs for pretrained Dense Co-Attention model
 train.py - Train the model
 answer.py - Generate the answer for test dataset
 ensemble.py - Ensemble multiple results from different models
-vqa_eval.py - Evaluate the performance of model (Provided by VQA team)
 ```
 
 ## Dependencies
 Tests are performed with following version of libraries:
 
 + Python 3.6.3
-+ Numpy 1.13.3
-+ Pytorch 0.3.1
-+ Torchtext 0.2.1
++ Pytorch >= 0.4
++ Torchtext for Pytorch >= 0.4 (install via pip)
 + TensorboardX
-
-## Demo
-1. Download our pretrained model and data info: [download link](https://drive.google.com/drive/folders/1Qvxu2ZMfPBkVL3gqdBV0oupY22F3sKLU) and put it inside demo folder.
-2. Run ```demo/single_machine_demo.py``` to test our pretrained mode (if you want to run on cpu, specify --gpus is an empty list).
 
 ## Training from Scratch
 The dataset can be downloaded from: [http://visualqa.org/](http://visualqa.org/).
@@ -50,7 +43,7 @@ The dataset can be downloaded from: [http://visualqa.org/](http://visualqa.org/)
 We provide the scripts for training our network from scratch by simply running the ```train.py``` script to train the model. 
 
 - All of arguments are described in the ```train.py``` file so that you can easily change the hyper-parameter and training conditions (Most of the default hyper-parameters are used in the main paper).
-- Pretrained GloVe word embedding is loaded from [torchtext](https://github.com/pytorch/text) (torchtext for Pytorch 0.3)
+- Pretrained GloVe word embedding is loaded from [torchtext](https://github.com/pytorch/text)
 
 ## Evaluation
 
