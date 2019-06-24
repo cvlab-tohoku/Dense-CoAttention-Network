@@ -1,8 +1,9 @@
 
 from .dataloader import DataLoader
-from .dataset import Dataset
-from .rcnn_dataset import RCNN_Dataset
-from .sampler import SequentialSampler, RandomSampler, ComplementSampler, BatchSampler
+from .dataset import RCNNDataset, ResnetDataset, VQADataset
+from .sampler import (BatchSampler, ComplementSampler, RandomSampler,
+                      SequentialSampler)
 
-__all__ = ["SequentialSampler", "RandomSampler", "ComplementSampler", "Dataset", "DataLoader", "RCNN_Dataset", 
-		   "BatchSampler"]
+__all__ = ["DataLoader",
+		   "RCNNDataset", "ResnetDataset", "VQADataset",
+		   "SequentialSampler", "RandomSampler", "ComplementSampler", "BatchSampler"]
