@@ -1,8 +1,4 @@
 
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import division
-
 import torch
 
 
@@ -96,6 +92,8 @@ class BatchSampler(object):
 				batch = []
 
 		if len(batch) > 0 and not self.drop_last:
+			for _ in range(self.batch_size - len(batch)):
+				batch.append(0)
 			yield batch
 
 	def __len__(self):
