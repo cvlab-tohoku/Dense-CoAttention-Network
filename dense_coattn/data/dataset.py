@@ -129,7 +129,7 @@ class VQADataset(VisionLanguageDataset):
 
 	def __getitem__(self, index):
 		ques = torch.from_numpy(self.questions[[index]])
-		ques_idx = torch.from_numpy(self.ques_idx[index])
+		ques_idx = torch.from_numpy(self.ques_idx[[index]])
 		ans_idx = torch.from_numpy(self.ans_idx[[index]]) if self.ans_idx is not None else None
 		ques_mask = ques.ne(0).float()
 		img_info = self.imageset[self.img_idx[index]]
