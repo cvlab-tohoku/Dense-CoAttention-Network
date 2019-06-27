@@ -6,9 +6,10 @@ import sys
 
 import torch
 import torch.nn as nn
+from torch.utils.data import DataLoader
 
 from dense_coattn.config import get_train_config
-from dense_coattn.data import DataLoader, VQADataset
+from dense_coattn.data import default_collate, VQADataset
 from dense_coattn.evaluate import VQA, VQAEval, evaluate
 from dense_coattn.model import DCN, DCNWithRCNN
 from dense_coattn.modules import LargeEmbedding
@@ -255,15 +256,15 @@ def main(opt):
 	if opt.trainval == 0:
 		trainset = VQADataset(opt.data_path, opt.data_name, "train", opt.img_path, opt.img_type, "trainval")
 		trainLoader = DataLoader(trainset, batch_size=opt.batch_size, shuffle=True, drop_last=True,
-								 num_workers=opt.num_workers, pin_memory=True, use_thread=opt.use_thread)
+								 num_workers=opt.num_workers, pin_memory=True, collate_fn=default_collate)
 		
 		valset = VQADataset(opt.data_path, opt.data_name, "val", opt.img_path, opt.img_type, "trainval")
 		valLoader = DataLoader(valset, batch_size=opt.batch_size, shuffle=False, drop_last=False,
-							   num_workers=opt.num_workers, pin_memory=True, use_thread=opt.use_thread)
+							   num_workers=opt.num_workers, pin_memory=True, collate_fn=default_collate)
 	else:
 		trainset = VQADataset(opt.data_path, opt.data_name, "trainval", opt.img_path, opt.img_type, "trainval")
 		trainLoader = DataLoader(trainset, batch_size=opt.batch_size, shuffle=True, drop_last=True,
-								 num_workers=opt.num_workers, pin_memory=True, use_thread=opt.use_thread)
+								 num_workers=opt.num_workers, pin_memory=True, collate_fn=default_collate)
 
 		valset = None
 		valLoader = None
