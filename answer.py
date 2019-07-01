@@ -3,9 +3,10 @@ import argparse
 import json
 
 import torch
+from torch.utils.data import DataLoader
 
 from dense_coattn.config import get_answer_config
-from dense_coattn.data import DataLoader, VQADataset
+from dense_coattn.data import BatchSampler, VQADataset, default_collate
 from dense_coattn.model import DCN, DCNWithRCNN
 from dense_coattn.modules import LargeEmbedding
 from dense_coattn.utils import move_to_cuda
@@ -58,7 +59,7 @@ def main(opt):
 	print("Constructing the dataset...")
 	testset = VQADataset(opt.data_path, opt.data_name, "test", opt.img_path, opt.img_type, "test")
 	testLoader = DataLoader(testset, batch_size=opt.batch_size, shuffle=False, drop_last=False,
-		num_workers=opt.num_workers, pin_memory=True, use_thread=opt.use_thread)
+		num_workers=opt.num_workers, pin_memory=True, collate_fn=default_collate, batch_sampler=BatchSampler)
 
 	idx2word = testset.idx2word
 	idx2ans = testset.idx2ans
@@ -68,7 +69,10 @@ def main(opt):
 	word_embedded.load_pretrained_vectors(opt.word_vectors)
 
 	num_ans = testset.ans_pool.shape[0]
-	model = DCNWithRCNN(opt, num_ans)
+	if opt.arch == "DCNWithRCNN":
+		model = DCNWithRCNN(opt, num_ans)
+	elif opt.arch == "DCN":
+		model = DCN(opt, num_ans)
 
 	dict_checkpoint = opt.resume
 	if dict_checkpoint:
@@ -90,4 +94,5 @@ if __name__ == "__main__":
 	params = vars(args)
 	print("Parsed input parameters:")
 	print(json.dumps(params, indent=2))
-	main(args)
+	with torch.no_grad():
+		main(args)
