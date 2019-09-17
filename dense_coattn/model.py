@@ -13,7 +13,7 @@ class DCN(nn.Module):
 		super(DCN, self).__init__()
 		self.lang_extract = LSTM(300, opt.ques_size, opt.num_layers, opt.droprnn, residual_embeddings=True)
 		
-		rnn_dim = (opt.hidden_size - 300)
+		rnn_dim = (opt.ques_size - 300)
 		self.img_extract = ImageExtractionLayer(opt.num_layers*rnn_dim, opt.img_size, 
 			opt.num_img_attn, cnn_name=opt.cnn_name)
 		self.dense_coattn = DCNLayer(opt.img_size, opt.ques_size, opt.num_dense_attn, opt.num_none, 
