@@ -116,8 +116,8 @@ class Adam(torch.optim.Optimizer):
 
 				if group["record"]:
 					updates = (-step_size) * (exp_avg / denom)
-					group_abs_updates += torch.sum(torch.abs(updates))
-					group_abs_params += torch.sum(torch.abs(p.data))
+					group_abs_updates += torch.sum(torch.abs(updates)).item()
+					group_abs_params += torch.sum(torch.abs(p.data)).item()
 
 				p.data.addcdiv_(-step_size, exp_avg, denom)
 			self.group_stats.append((group_abs_updates, group_abs_params))
