@@ -99,7 +99,7 @@ class ResnetDataset(Dataset):
 		img_idx = self.img2idx[index]
 		img = self.transform(Image.fromarray(self.images[img_idx])).unsqueeze(0)
 
-		return img
+		return img, None
 
 	def __len__(self):
 		return len(self.img2idx)
